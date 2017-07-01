@@ -207,7 +207,7 @@ for i in range(num_chapter_lines):
                 [l1, l2] = shloka_lines[0][:-1].split(';')
                 [l3, l4] = shloka_lines[1][:-1].split(';')
                 print('{%s}\n{%s}\n{%s}\n{%s} %%||%d-%d-%d||\n' %
-                      (l1, l2, l3, l4, kandanum, sarganum, shloka_num))
+                      (l1, l2.lstrip(), l3, l4.lstrip(), kandanum, sarganum, shloka_num))
 
         elif nLines == 1:
             print('{%s॥\devanumber{%d}॥} %%||%d-%d-%d|| (Check)\n' % (shloka_lines[0][:-1],
