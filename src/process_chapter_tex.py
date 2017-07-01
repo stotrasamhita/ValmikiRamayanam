@@ -141,8 +141,6 @@ chapter_lines.append('%d%03d001a iti\n1%03d001c iti' %
 
 num_chapter_lines = len(chapter_lines)
 
-# print("{{Ramayanam}}")
-
 for i in range(num_chapter_lines):
     line1 = chapter_lines[i]
     if line1.find('%') != -1:
@@ -175,10 +173,6 @@ for i in range(num_chapter_lines):
     if shlokanum == 1 and pada == 'a':
         print('\\sect{%s}\n' % tr(sarga[sarganum] + ' sargaH', 'harvardkyoto', 'devanagari'))
 
-    # if shlokanum == 0:
-    #     print('<lipi><b>%s</b></lipi>' % (shloka_text))
-    #     continue
-
     if pada == 'a':
         shloka_lines = [None] * 5
         shloka_num = int(shloka_ID[4:7])
@@ -202,9 +196,6 @@ for i in range(num_chapter_lines):
 
                 nLines += 1
                 i += 1
-
-        # if nLines != 2:
-        # print(nLines, '!!')
 
         if nLines == 2:
             if shloka_lines[0].find(';') == -1:
