@@ -10,6 +10,7 @@
 *.fot
 *.cb
 *.cb2
+*.xdv
 
 ## Intermediate documents:
 *.dvi
@@ -218,3 +219,7 @@ TSWLatexianTemp*
 
 # expex forward references with \gathertags
 *-tags.tex
+
+# project files
+src/*.txt
+*.pyc
