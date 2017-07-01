@@ -135,7 +135,8 @@ sarga = {1: "prathamaH",
 chapter_file = open(sys.argv[1])
 chapter_lines = chapter_file.readlines()
 nSargas = int(chapter_lines[-1][1:4])
-chapter_lines.append('1%03d001a iti\n1%03d001c iti' % (nSargas + 1, nSargas + 1))
+chapter_lines.append('%d%03d001a iti\n1%03d001c iti' %
+                     (int(chapter_lines[-1][0]), nSargas + 1, nSargas + 1))
 # Poor coding, to assist the while loop to read the last verse!
 
 num_chapter_lines = len(chapter_lines)
