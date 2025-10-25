@@ -84,7 +84,7 @@
         "shloka_count_expected": 30
       },
       {
-        "name_dev": "अश्वमेधसंभारः",
+        "name_dev": "अश्वमेधसम्भारः",
         "name_nor": "ashvamEdhasambhAraH",
         "pos": 12,
         "shloka_count": 22,
@@ -245,7 +245,7 @@
         "shloka_count_expected": 23
       },
       {
-        "name_dev": "उमागङ्गावृत्तान्तसंक्षेपः",
+        "name_dev": "उमागङ्गावृत्तान्तसङ्क्षेपः",
         "name_nor": "umAgangAvRttAntasaMkShEpaH",
         "pos": 35,
         "shloka_count": 24,
@@ -399,14 +399,14 @@
         "shloka_count_expected": 24
       },
       {
-        "name_dev": "त्रिशंकुयाजनप्रार्थना",
+        "name_dev": "त्रिशङ्कुयाजनप्रार्थना",
         "name_nor": "trishankuyAjanaprArthanA",
         "pos": 57,
         "shloka_count": 22,
         "shloka_count_expected": 22
       },
       {
-        "name_dev": "त्रिशंकुशापः",
+        "name_dev": "त्रिशङ्कुशापः",
         "name_nor": "trishankushApaH",
         "pos": 58,
         "shloka_count": 24,
@@ -420,7 +420,7 @@
         "shloka_count_expected": 22
       },
       {
-        "name_dev": "त्रिशंकुस्वर्गः",
+        "name_dev": "त्रिशङ्कुस्वर्गः",
         "name_nor": "trishankusvargaH",
         "pos": 60,
         "shloka_count": 34,
@@ -835,7 +835,7 @@
         "shloka_count_expected": 51
       },
       {
-        "name_dev": "नगरसंक्षोभः",
+        "name_dev": "नगरसङ्क्षोभः",
         "name_nor": "nagarasaMkShObhaH",
         "pos": 41,
         "shloka_count": 21,
@@ -919,7 +919,7 @@
         "shloka_count_expected": 101
       },
       {
-        "name_dev": "रामसंक्षोभः",
+        "name_dev": "रामसङ्क्षोभः",
         "name_nor": "rAmasaMkShObhaH",
         "pos": 53,
         "shloka_count": 35,
@@ -954,7 +954,7 @@
         "shloka_count_expected": 34
       },
       {
-        "name_dev": "रामसंदेशाख्यानम्",
+        "name_dev": "रामसन्देशाख्यानम्",
         "name_nor": "rAmasandEshAkhyAnam",
         "pos": 58,
         "shloka_count": 37,
@@ -1586,7 +1586,7 @@
         "shloka_count_expected": 20
       },
       {
-        "name_dev": "खररामसंप्रहारः",
+        "name_dev": "खररामसम्प्रहारः",
         "name_nor": "khararAmasaMprahAraH",
         "pos": 28,
         "shloka_count": 33,
@@ -2232,7 +2232,7 @@
         "shloka_count_expected": 64
       },
       {
-        "name_dev": "हनुमत्संदेशः",
+        "name_dev": "हनुमत्सन्देशः",
         "name_nor": "hanumatsandEshaH",
         "pos": 44,
         "shloka_count": 17,
@@ -2316,7 +2316,7 @@
         "shloka_count_expected": 22
       },
       {
-        "name_dev": "संपातिप्रश्नः",
+        "name_dev": "सम्पातिप्रश्नः",
         "name_nor": "sampAtiprashnaH",
         "pos": 56,
         "shloka_count": 24,
@@ -2344,7 +2344,7 @@
         "shloka_count_expected": 29
       },
       {
-        "name_dev": "संपातिपुरावृत्तवर्णनम्",
+        "name_dev": "सम्पातिपुरावृत्तवर्णनम्",
         "name_nor": "sampAtipurAvRttavarNanam",
         "pos": 60,
         "shloka_count": 21,
@@ -2365,7 +2365,7 @@
         "shloka_count_expected": 16
       },
       {
-        "name_dev": "संपातिपक्षप्ररोहः",
+        "name_dev": "सम्पातिपक्षप्ररोहः",
         "name_nor": "sampAtipakShaprarOhaH",
         "pos": 63,
         "shloka_count": 15,
@@ -2386,7 +2386,7 @@
         "shloka_count_expected": 34
       },
       {
-        "name_dev": "हनुमद्बलसंधुक्षणम्",
+        "name_dev": "हनुमद्बलसन्धुक्षणम्",
         "name_nor": "hanumadbalasandhukShaNam",
         "pos": 66,
         "shloka_count": 38,
@@ -2465,7 +2465,7 @@
         "shloka_count_expected": 8
       },
       {
-        "name_dev": "संकुलान्तःपुरम्",
+        "name_dev": "सङ्कुलान्तःपुरम्",
         "name_nor": "sankulAntaHpuram",
         "pos": 9,
         "shloka_count": 73,
@@ -2584,7 +2584,7 @@
         "shloka_count_expected": 20
       },
       {
-        "name_dev": "प्राणत्यागसंप्रधारणम्",
+        "name_dev": "प्राणत्यागसम्प्रधारणम्",
         "name_nor": "prANatyAgasaMpradhAraNam",
         "pos": 26,
         "shloka_count": 49,
@@ -2696,7 +2696,7 @@
         "shloka_count_expected": 21
       },
       {
-        "name_dev": "किंकरनिषूदनम्",
+        "name_dev": "किङ्करनिषूदनम्",
         "name_nor": "kinkaraniShUdanam",
         "pos": 42,
         "shloka_count": 44,
@@ -3013,7 +3013,7 @@
         "shloka_count_expected": 68
       },
       {
-        "name_dev": "विभीषणसंग्रहनिर्णयः",
+        "name_dev": "विभीषणसङ्ग्रहनिर्णयः",
         "name_nor": "vibhIShaNasangrahanirNayaH",
         "pos": 18,
         "shloka_count": 39,
@@ -3034,7 +3034,7 @@
         "shloka_count_expected": 35
       },
       {
-        "name_dev": "समुद्रसंक्षोभः",
+        "name_dev": "समुद्रसङ्क्षोभः",
         "name_nor": "samudrasaMkShObhaH",
         "pos": 21,
         "shloka_count": 35,
@@ -3097,7 +3097,7 @@
         "shloka_count_expected": 32
       },
       {
-        "name_dev": "वानरबलसंख्यानम्",
+        "name_dev": "वानरबलसङ्ख्यानम्",
         "name_nor": "vAnarabalasankhyAnam",
         "pos": 30,
         "shloka_count": 35,
@@ -3510,7 +3510,7 @@
         "shloka_count_expected": 40
       },
       {
-        "name_dev": "सौमित्रिसंधुक्षणम्",
+        "name_dev": "सौमित्रिसन्धुक्षणम्",
         "name_nor": "saumitrisandhukShaNam",
         "pos": 89,
         "shloka_count": 41,
@@ -3601,7 +3601,7 @@
         "shloka_count_expected": 63
       },
       {
-        "name_dev": "लक्ष्मणसंजीवनम्",
+        "name_dev": "लक्ष्मणसञ्जीवनम्",
         "name_nor": "lakShmaNasanjIvanam",
         "pos": 102,
         "shloka_count": 56,
@@ -3790,7 +3790,7 @@
         "shloka_count_expected": 45
       },
       {
-        "name_dev": "हनूमद्भरतसंभाषणम्",
+        "name_dev": "हनूमद्भरतसम्भाषणम्",
         "name_nor": "hanUmadbharatasambhAShaNam",
         "pos": 129,
         "shloka_count": 55,
@@ -3953,7 +3953,7 @@
         "shloka_count_expected": 33
       },
       {
-        "name_dev": "रावणसंधुक्षणम्",
+        "name_dev": "रावणसन्धुक्षणम्",
         "name_nor": "rAvaNasandhukShaNam",
         "pos": 20,
         "shloka_count": 33,
@@ -4464,7 +4464,7 @@
         "shloka_count_expected": 19
       },
       {
-        "name_dev": "वाल्मीकिसंदेशः",
+        "name_dev": "वाल्मीकिसन्देशः",
         "name_nor": "vAlmIkisandEshaH",
         "pos": 93,
         "shloka_count": 19,
