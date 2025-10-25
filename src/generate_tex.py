@@ -2,7 +2,6 @@
 import json
 import re
 from pathlib import Path
-from sanskrit_ordinals import sanskrit_ordinal
 
 # -------- Paths --------
 DATA_DIR = Path("./data")
