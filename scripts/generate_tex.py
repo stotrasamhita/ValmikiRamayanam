@@ -31,6 +31,14 @@ DEFAULT_MAP_FILE = DEFAULT_DATA_DIR / "ramayana_map.json"
 
 
 @dataclass
+class ShlokaEntry:
+    """Container for shloka lines accompanied by an optional number."""
+
+    lines: List[str]
+    number: Optional[int]
+
+
+@dataclass
 class TitleIndex:
     """Helper class that stores lookup data for sarga titles."""
 
@@ -137,7 +145,8 @@ class TitleIndex:
 
 def normalise_slug(value: str) -> str:
     """Return a lower-case slug with hyphen separators."""
-    cleaned = re.sub(r"[^0-9a-zA-Z]+", "-", value)
+    camel_split = re.sub(r"([a-z0-9])([A-Z])", r"\1-\2", value)
+    cleaned = re.sub(r"[^0-9a-zA-Z]+", "-", camel_split)
     cleaned = cleaned.strip("-")
     return cleaned.lower()
 
@@ -168,7 +177,12 @@ def extract_kanda_metadata(path: Path) -> Tuple[int, str, str]:
 
     kanda_number = int(match.group(1))
     kanda_slug = normalise_slug(match.group(2))
-    output_dir_name = f"{kanda_number}-{''.join(part.capitalize() for part in match.group(2).split('-'))}"
+    pretty_name_parts = []
+    for part in match.group(2).split('-'):
+        if not part:
+            continue
+        pretty_name_parts.append(part[:1].upper() + part[1:])
+    output_dir_name = f"{kanda_number}-{''.join(pretty_name_parts)}"
     return kanda_number, kanda_slug, output_dir_name
 
 
@@ -196,18 +210,70 @@ CANDIDATE_TEXT_KEYS = (
     "values",
 )
 
+CANDIDATE_NUMBER_KEYS = (
+    "number",
+    "shloka_number",
+    "shloka_no",
+    "sloka_number",
+    "sloka_no",
+    "verse_number",
+    "verse",
+    "id",
+    "identifier",
+    "index",
+)
+
+
+def _coerce_int(value: object) -> Optional[int]:
+    if isinstance(value, bool):  # guard against bool being subclass of int
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        matches = re.findall(r"\d+", value)
+        if matches:
+            try:
+                return int(matches[-1])
+            except ValueError:
+                return None
+    return None
+
+
+def extract_shloka_number(shloka: object) -> Optional[int]:
+    if not isinstance(shloka, MutableMapping):
+        return None
+
+    lower_key_map = {str(key).lower(): key for key in shloka.keys()}
+    for candidate in CANDIDATE_NUMBER_KEYS:
+        key = lower_key_map.get(candidate)
+        if key is None:
+            continue
+        number = _coerce_int(shloka[key])
+        if number is not None:
+            return number
+
+    for value in shloka.values():
+        if isinstance(value, MutableMapping):
+            number = extract_shloka_number(value)
+            if number is not None:
+                return number
+
+    return None
+
 
 def extract_shloka_lines(shloka: object) -> List[str]:
     if isinstance(shloka, str):
         return [line.strip() for line in shloka.splitlines() if line.strip()]
 
     if isinstance(shloka, MutableMapping):
+        value: object
         for key in CANDIDATE_TEXT_KEYS:
             if key in shloka:
                 value = shloka[key]
                 break
         else:
-            # Some data sets nest the Sanskrit text under a dedicated field
             for key, value in shloka.items():
                 if key.lower().endswith("_sanskrit") and isinstance(value, (str, list)):
                     break
@@ -225,16 +291,25 @@ def extract_shloka_lines(shloka: object) -> List[str]:
     return []
 
 
-def find_shlokas(data: object) -> List[List[str]]:
+def extract_shloka_entry(shloka: object) -> ShlokaEntry:
+    lines = extract_shloka_lines(shloka)
+    number = extract_shloka_number(shloka)
+    return ShlokaEntry(lines=lines, number=number)
+
+
+def find_shlokas(data: object) -> List[ShlokaEntry]:
     if isinstance(data, list):
-        return [extract_shloka_lines(item) for item in data]
+        return [extract_shloka_entry(item) for item in data]
 
     if isinstance(data, MutableMapping):
         for key in ("shlokas", "slokas", "verses", "data", "items", "content"):
             if key in data and isinstance(data[key], list):
-                return [extract_shloka_lines(item) for item in data[key]]
-        # Some JSON files might only contain the shloka data without a wrapper key.
-        return [extract_shloka_lines(value) for value in data.values() if isinstance(value, (list, MutableMapping, str))]
+                return [extract_shloka_entry(item) for item in data[key]]
+        return [
+            extract_shloka_entry(value)
+            for value in data.values()
+            if isinstance(value, (list, MutableMapping, str))
+        ]
 
     return []
 
@@ -262,32 +337,67 @@ def tex_escape(value: str) -> str:
     return "".join(result)
 
 
-def chunked(lines: Sequence[str], size: int = 2) -> Iterator[Tuple[str, ...]]:
-    buffer: List[str] = []
-    for line in lines:
-        buffer.append(line)
-        if len(buffer) == size:
-            yield tuple(buffer)
-            buffer.clear()
-    if buffer:
-        padded = list(buffer) + ["" for _ in range(size - len(buffer))]
-        yield tuple(padded)
+MACRO_BY_LINE_COUNT = {
+    1: "onelineshloka",
+    2: "twolineshloka",
+    3: "threelineshloka",
+}
 
 
-def format_twolineshloka(line_one: str, line_two: str, comment: str) -> str:
-    return "\n".join(
-        [
-            "\\twolineshloka",
-            f"{{{tex_escape(line_one)}}}",
-            f"{{{tex_escape(line_two)}}} %{comment}",
-        ]
-    )
+def build_macro_segments(lines: Sequence[str]) -> List[Tuple[str, List[str]]]:
+    """Split *lines* into macro segments.
+
+    Ideally a single macro matches the shloka's line count.  When the number of
+    lines exceeds the available macros we emit multiple segments, favouring
+    two-line macros to preserve pada structure.
+    """
+
+    if not lines:
+        return []
+
+    segments: List[Tuple[str, List[str]]] = []
+    index = 0
+    total = len(lines)
+
+    while index < total:
+        remaining = total - index
+        if remaining in MACRO_BY_LINE_COUNT:
+            size = remaining
+        elif remaining > 3:
+            size = 2
+        else:
+            size = remaining
+
+        macro_name = MACRO_BY_LINE_COUNT.get(size)
+        if macro_name is None:
+            LOGGER.warning(
+                "Unsupported line count (%d) in shloka; defaulting to twolineshloka.",
+                size,
+            )
+            macro_name = "twolineshloka"
+            size = min(2, remaining) or 1
+
+        segment_lines = [lines[index + offset] for offset in range(size)]
+        segments.append((macro_name, segment_lines))
+        index += size
+
+    return segments
+
+
+def format_shloka_macro(macro_name: str, lines: Sequence[str], comment: Optional[str]) -> str:
+    body: List[str] = [f"\\{macro_name}"]
+    for idx, line in enumerate(lines, start=1):
+        suffix = ""
+        if comment and idx == len(lines):
+            suffix = f" %{comment}"
+        body.append(f"{{{tex_escape(line)}}}{suffix}")
+    return "\n".join(body)
 
 
 def generate_tex_content(
     *,
     source_path: Path,
-    shlokas: List[List[str]],
+    shlokas: List[ShlokaEntry],
     kanda_number: int,
     sarga_number: int,
     title_index: TitleIndex,
@@ -305,22 +415,31 @@ def generate_tex_content(
         lines.append(f"% Title not available for {slug}")
     lines.append("")
 
-    shloka_counter = 1
     for entry_index, entry in enumerate(shlokas, start=1):
-        if not entry:
+        if not entry.lines:
             continue
-        if len(entry) % 2 != 0:
+
+        shloka_number = entry.number if entry.number is not None else entry_index
+        identifier = f"{kanda_number}-{sarga_number:03d}-{shloka_number:03d}"
+
+        segments = build_macro_segments(entry.lines)
+        if not segments:
+            continue
+
+        if len(segments) > 1 or len(entry.lines) not in MACRO_BY_LINE_COUNT:
             LOGGER.warning(
-                "Shloka %d in %s has an odd number of lines (%d); padding the last line.",
+                "Shloka entry %d (number %s) in %s contains %d lines; emitted %d macro segments.",
                 entry_index,
+                entry.number if entry.number is not None else "unknown",
                 source_path,
-                len(entry),
+                len(entry.lines),
+                len(segments),
             )
-        for pair in chunked(entry, 2):
-            comment = f"{kanda_number}-{sarga_number}-{shloka_counter}"
-            lines.append(format_twolineshloka(pair[0], pair[1], comment))
+
+        for segment_index, (macro_name, macro_lines) in enumerate(segments, start=1):
+            comment = identifier if segment_index == len(segments) else None
+            lines.append(format_shloka_macro(macro_name, macro_lines, comment))
             lines.append("")
-            shloka_counter += 1
 
     return "\n".join(lines).rstrip() + "\n"
 
@@ -334,7 +453,7 @@ def process_file(
 ) -> Optional[Path]:
     data = read_json(path)
     shlokas = find_shlokas(data)
-    shlokas = [entry for entry in shlokas if entry]
+    shlokas = [entry for entry in shlokas if entry.lines]
     if not shlokas:
         LOGGER.warning("No shloka data detected in %s", path)
         return None
