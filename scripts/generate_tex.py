@@ -25,7 +25,7 @@ from typing import Dict, Iterable, Iterator, List, MutableMapping, Optional, Seq
 
 LOGGER = logging.getLogger(__name__)
 
-DEFAULT_DATA_DIR = Path("src/data")
+DEFAULT_DATA_DIR = Path("../src/data")
 DEFAULT_OUTPUT_DIR = Path("TeX")
 DEFAULT_MAP_FILE = DEFAULT_DATA_DIR / "ramayana_map.json"
 
