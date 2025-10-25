@@ -1,9 +1,20 @@
+% Macro: \includekanda{<folder>}{<fileprefix>}{<numsargas>}
+% Example: \includekanda{1-BalaKanda}{bala-kanda}{77}
+\newcommand{\includekanda}[4]{%
+  \chapt{#1}%
+  \foreach \n in {1,...,#4}{%
+    % zero-pad to 3 digits
+    \def\paddednum{\ifnum\n<10 00\n\else\ifnum\n<100 0\n\else\n\fi\fi}%
+    \subimport{TeX/#2/}{#3-sarga-\paddednum.tex}%
+  }%
+}
+
 \begin{center}
-\input{TeX/1-BalaKanda}
-\input{TeX/2-AyodhyaKanda}
-\input{TeX/3-AranyaKanda}
-\input{TeX/4-KishkindhaKanda}
-\input{TeX/5-SundaraKanda}
-\input{TeX/6-YuddhaKanda}
-\input{TeX/7-UttaraKanda}
+\includekanda{बाल-काण्डः}{1-BalaKanda}{bala-kanda}{77}
+\includekanda{अयोध्या-काण्डः}{2-AyodhyaKanda}{ayodhya-kanda}{119}
+\includekanda{अरण्य-काण्डः}{3-AranyaKanda}{aranya-kanda}{75}
+\includekanda{किष्किन्धा-काण्डः}{4-KishkindaKanda}{kishkinda-kanda}{67}
+\includekanda{सुन्दर-काण्डः}{5-SundaraKanda}{sundara-kanda}{68}
+\includekanda{युद्ध-काण्डः}{6-YuddhaKanda}{yuddha-kanda}{128}
+\includekanda{उत्तर-काण्डः}{7-UttaraKanda}{uttara-kanda}{111}
 \end{center}
