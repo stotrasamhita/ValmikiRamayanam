@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 import json
 import re
 from pathlib import Path
+from sanskrit_ordinals import sanskrit_ordinal
 
 # -------- Paths --------
 DATA_DIR = Path("./data")
@@ -71,56 +73,83 @@ def build_sect_line(kanda_num: int, sarga_num: int) -> str:
     # “Ideally” you wanted ordinals (प्रथमः/द्वितीयः …). Since the map doesn’t include them,
     # we render: "<देवनागरी संख्या> सर्गः — <सर्ग-शीर्षक>"
     title_dev = get_sarga_title(kanda_num, sarga_num)
-    return rf"\sect{{{to_devanagari(sarga_num)} सर्गः — {title_dev}}}"
+    ord_text = sanskrit_ordinal(sarga_num)
+    return rf"\sect{{{ord_text} सर्गः — {title_dev}}}"
+
+RE_ORD_FROM_PUSHP = re.compile(r"नाम\s+(.+?)\s*सर्ग", flags=re.UNICODE)
+
+def extract_ordinal_from_pushpika(pushpika_text: str) -> str | None:
+    """
+    From a line like: '॥इत्यार्षे ... नारदवाक्यम् नाम प्रथमः सर्गः ॥'
+    return 'प्रथमः'. If not found, return None.
+    """
+    # strip leading danda if present
+    t = pushpika_text.lstrip()
+    if t.startswith("॥"):
+        t = t[1:].lstrip()
+    m = RE_ORD_FROM_PUSHP.search(t)
+    if m:
+        return m.group(1).strip()
+    return None
 
 def write_sarga_tex(kanda_num: int, sarga_json_path: Path) -> None:
     with sarga_json_path.open(encoding="utf-8") as f:
-        records = json.load(f)  # list of {text, index, shloka_num or None}
+        records = json.load(f)  # [{text, index, shloka_num or None}, ...]
 
-    sarga_num = int(sarga_json_path.stem)  # "001" -> 1
-    sect_line = build_sect_line(kanda_num, sarga_num)
+    sarga_num = int(sarga_json_path.stem)
 
-    lines_out = [sect_line + "\n"]
-
-    # Only the *last* unnumbered is the pushpika; others (e.g., the opening colophon) are ignored.
-    last_unnumbered_idx = None
+    # locate pushpika (last unnumbered)
+    last_unn_idx = None
     for i, rec in enumerate(records):
         if rec.get("shloka_num") is None:
-            last_unnumbered_idx = i
+            last_unn_idx = i
 
+    # get title and ordinal (from pushpika)
+    title_dev = get_sarga_title(kanda_num, sarga_num)
+    ord_word = None
+    pushpika_text = None
+    if last_unn_idx is not None:
+        pushpika_text = (records[last_unn_idx].get("text") or "").strip()
+        if pushpika_text:
+            ord_word = extract_ordinal_from_pushpika(pushpika_text)
+
+    # build \sect{...}; fallback to devanagari number if no ordinal found
+    if ord_word:
+        sect_line = rf"\sect{{{ord_word} सर्गः — {title_dev}}}"
+    else:
+        sect_line = rf"\sect{{{to_devanagari(sarga_num)} सर्गः — {title_dev}}}"
+
+    out_lines = [sect_line + "\n"]
+
+    # write shlokas
     for i, rec in enumerate(records):
         text = (rec.get("text") or "").strip()
         shno = rec.get("shloka_num")
 
-        # pushpika: only if this is the final unnumbered record
         if shno is None:
-            if i == last_unnumbered_idx and text:
-                # Prefix exactly one "॥"
+            # pushpika: only render the last unnumbered one
+            if i == last_unn_idx and text:
                 t = text if text.lstrip().startswith("॥") else f"॥{text}"
-                lines_out.append("\n" + t + "\n")
-            # ignore earlier unnumbered records (like the header line)
+                out_lines.append("\n" + t + "\n")
             continue
 
-        # Normal shloka
-        raw_lines = [ln for ln in text.split("\n")]
-        clean_lines = [cl for cl in (clean_shloka_line(ln) for ln in raw_lines) if cl]
+        # normal shloka
+        raw_lines = text.split("\n")
+        clean_lines = [s for s in (clean_shloka_line(x) for x in raw_lines) if s]
         if not clean_lines:
             continue
-
         macro = determine_macro(len(clean_lines))
-        lines_out.append(macro)
+        out_lines.append(macro)
         for cl in clean_lines:
-            lines_out.append("{" + cl + "}")
-        # trailing comment with K-S-Ś numbers
-        lines_out[-1] += f" %{kanda_num}-{sarga_num}-{shno}\n"
+            out_lines.append("{" + cl + "}")
+        out_lines[-1] += f" %{kanda_num}-{sarga_num}-{shno}\n"
 
-    # Output folder/name
+    # output path (keep your existing naming)
     kanda_name, file_prefix = KANDA_EN.get(kanda_num, (f"Kanda{kanda_num}", f"kanda-{kanda_num}"))
     out_dir = TEX_DIR / f"{kanda_num}-{kanda_name}"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{file_prefix}-sarga-{sarga_num:03d}.tex"
-
-    out_path.write_text("\n".join(lines_out), encoding="utf-8")
+    out_path.write_text("\n".join(out_lines), encoding="utf-8")
     print(f"✅ {out_path}")
 
 def main():
